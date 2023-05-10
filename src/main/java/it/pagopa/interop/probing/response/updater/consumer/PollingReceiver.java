@@ -6,7 +6,7 @@ import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
-import it.pagopa.interop.probing.response.updater.dto.ChangeResponseReceived;
+import it.pagopa.interop.probing.response.updater.dto.impl.ChangeResponseReceivedDto;
 import it.pagopa.interop.probing.response.updater.util.logging.Logger;
 
 
@@ -23,7 +23,7 @@ public class PollingReceiver {
       deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
   public void receiveStringMessage(final String message) throws IOException {
 
-    ChangeResponseReceived service = mapper.readValue(message, ChangeResponseReceived.class);
+    ChangeResponseReceivedDto service = mapper.readValue(message, ChangeResponseReceivedDto.class);
 
     logger.logMessageReceiver(service.eserviceRecordId());
   }
