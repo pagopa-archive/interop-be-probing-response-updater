@@ -19,8 +19,6 @@
 		<java.version>17</java.version>
 		<spring.cloud.version>2020.0.3</spring.cloud.version>
 		<awsspring.cloud.version>2.3.0</awsspring.cloud.version>
-		<aws.java.sdk.bom.version>1.12.414</aws.java.sdk.bom.version>
-		<javax.validation.api>2.0.1.Final</javax.validation.api>
 	</properties>
 	<organization>
 		<name>PagoPa</name>
@@ -28,13 +26,6 @@
 	</organization>
 	<dependencyManagement>
 		<dependencies>
-			<dependency>
-				<groupId>com.amazonaws</groupId>
-				<artifactId>aws-java-sdk-bom</artifactId>
-				<version>${aws.java.sdk.bom.version}</version>
-				<type>pom</type>
-				<scope>import</scope>
-			</dependency>
 			<dependency>
 				<groupId>org.springframework.cloud</groupId>
 				<artifactId>spring-cloud-dependencies</artifactId>
@@ -57,12 +48,20 @@
 			<artifactId>spring-boot-starter-web</artifactId>
 		</dependency>
 		<dependency>
-			<groupId>com.amazonaws</groupId>
-			<artifactId>aws-java-sdk-sqs</artifactId>
+			<groupId>org.springframework.boot</groupId>
+			<artifactId>spring-boot-starter-validation</artifactId>
 		</dependency>
 	    <dependency>
 			<groupId>io.awspring.cloud</groupId>
 			<artifactId>spring-cloud-starter-aws-messaging</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-sts</artifactId>
+		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-java-sdk-iam</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>org.projectlombok</groupId>
@@ -83,11 +82,6 @@
 		<dependency>
 			<groupId>ch.qos.logback</groupId>
 			<artifactId>logback-classic</artifactId>
-		</dependency>
-		<dependency>
-			<groupId>javax.validation</groupId>
-			<artifactId>validation-api</artifactId>
-			<version>${javax.validation.api}</version>
 		</dependency>
 	</dependencies>
 	<build>
