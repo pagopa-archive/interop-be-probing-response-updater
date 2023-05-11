@@ -5,6 +5,7 @@ import javax.validation.constraints.Min;
 import javax.validation.constraints.NotNull;
 import com.fasterxml.jackson.annotation.JsonProperty;
 import it.pagopa.interop.probing.response.updater.dto.Dto;
+import it.pagopa.interop.probing.response.updater.util.EserviceStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,5 +29,9 @@ public class ChangeResponseReceivedDto implements Dto {
   @JsonProperty("responseReceived")
   @NotNull(message = "must not be null")
   private OffsetDateTime responseReceived;
+
+  @JsonProperty("status")
+  @NotNull(message = "must not be null")
+  private EserviceStatus status;
 
 }
