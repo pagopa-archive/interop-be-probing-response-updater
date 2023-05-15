@@ -23,7 +23,7 @@ public class PollingReceiver {
   private EserviceService eserviceService;
 
   @Autowired
-  ObjectMapper mapper;
+  private ObjectMapper mapper;
 
   @Autowired
   private Logger logger;
