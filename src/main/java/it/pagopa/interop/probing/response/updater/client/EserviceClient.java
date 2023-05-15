@@ -9,7 +9,7 @@ import it.pagopa.interop.probing.response.updater.dto.impl.ChangeResponseReceive
 import it.pagopa.interop.probing.response.updater.exception.EserviceNotFoundException;
 
 @FeignClient(name = "eserviceClient",
-    url = "${api.operations.baseUrl}" + "${api.eservice.basePath}")
+    url = "${api.operations.baseUrl}" + "${api.operations.eservice.basePath}")
 public interface EserviceClient {
 
   @PostMapping("/{eserviceRecordId}/updateResponseReceived")
