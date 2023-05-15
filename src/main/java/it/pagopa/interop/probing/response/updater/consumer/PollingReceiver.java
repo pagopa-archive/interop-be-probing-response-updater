@@ -1,30 +1,54 @@
 package it.pagopa.interop.probing.response.updater.consumer;
 
 import java.io.IOException;
+import java.util.UUID;
+import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
-import it.pagopa.interop.probing.response.updater.dto.impl.ChangeResponseReceivedDto;
+import it.pagopa.interop.probing.response.updater.dto.impl.ChangeResponseReceived;
+import it.pagopa.interop.probing.response.updater.dto.impl.UpdateResponseReceivedDto;
+import it.pagopa.interop.probing.response.updater.exception.EserviceNotFoundException;
+import it.pagopa.interop.probing.response.updater.service.EserviceService;
 import it.pagopa.interop.probing.response.updater.util.logging.Logger;
+import it.pagopa.interop.probing.response.updater.util.logging.LoggingPlaceholders;
 
 
 @Component
 public class PollingReceiver {
 
   @Autowired
-  ObjectMapper mapper;
+  private EserviceService eserviceService;
+
+  @Autowired
+  private ObjectMapper mapper;
 
   @Autowired
   private Logger logger;
 
-  @SqsListener(value = "${amazon.sqs.end-point.poll-result-queue}",
+  @SqsListener(value = "${amazon.sqs.end-point.update-response-received}",
       deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
-  public void receiveStringMessage(final String message) throws IOException {
+  public void receiveStringMessage(final String message)
+      throws IOException, EserviceNotFoundException {
+    MDC.put(LoggingPlaceholders.TRACE_ID_PLACEHOLDER,
+        "- [CID= " + UUID.randomUUID().toString().toLowerCase() + "]");
 
-    ChangeResponseReceivedDto service = mapper.readValue(message, ChangeResponseReceivedDto.class);
+    logger.logConsumerMessage(message);
 
-    logger.logMessageReceiver(service.eserviceRecordId());
+    try {
+      UpdateResponseReceivedDto updateResponseReceived =
+          mapper.readValue(message, UpdateResponseReceivedDto.class);
+
+      logger.logMessageReceiver(updateResponseReceived.eserviceRecordId());
+
+      eserviceService.updateResponseReceived(updateResponseReceived.eserviceRecordId(),
+          ChangeResponseReceived.builder()
+              .responseReceived(updateResponseReceived.responseReceived())
+              .status(updateResponseReceived.status()).build());
+    } finally {
+      MDC.remove(LoggingPlaceholders.TRACE_ID_PLACEHOLDER);
+    }
   }
 }

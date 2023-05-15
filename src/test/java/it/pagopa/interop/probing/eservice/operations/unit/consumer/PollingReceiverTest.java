@@ -8,6 +8,7 @@ import javax.validation.ConstraintViolationException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -18,6 +19,8 @@ import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.awspring.cloud.messaging.listener.SimpleMessageListenerContainer;
 import it.pagopa.interop.probing.response.updater.InteropResponseUpdaterApplication;
 import it.pagopa.interop.probing.response.updater.consumer.PollingReceiver;
+import it.pagopa.interop.probing.response.updater.exception.EserviceNotFoundException;
+import it.pagopa.interop.probing.response.updater.service.EserviceService;
 
 
 @SpringBootTest(classes = InteropResponseUpdaterApplication.class)
@@ -37,6 +40,9 @@ class PollingReceiverTest {
   private Resource mockMessageBadFormattedResponseReceived;
 
   @MockBean
+  private EserviceService eserviceService;
+
+  @MockBean
   private SimpleMessageListenerContainer simpleMessageListenerContainer;
 
   @InjectMocks
@@ -45,7 +51,10 @@ class PollingReceiverTest {
 
   @Test
   @DisplayName("given valid message method should not throw an exception")
-  void testReceiveStringMessage_givenValidMessage_thenServiceDoesNotThrow() throws IOException {
+  void testReceiveStringMessage_givenValidMessage_thenServiceDoesNotThrow()
+      throws EserviceNotFoundException, IOException {
+    Mockito.doNothing().when(eserviceService).updateResponseReceived(Mockito.anyLong(),
+        Mockito.any());
     String message = getStringFromResourse(mockMessageChangeResponseReceivedDto);
     assertDoesNotThrow(() -> pollingReceiver.receiveStringMessage(message));
   }

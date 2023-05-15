@@ -7,7 +7,7 @@ import java.time.ZoneOffset;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
-import it.pagopa.interop.probing.response.updater.dto.impl.ChangeResponseReceivedDto;
+import it.pagopa.interop.probing.response.updater.dto.impl.ChangeResponseReceived;
 import it.pagopa.interop.probing.response.updater.util.EserviceStatus;
 
 class ChangeResponseReceivedDtoTest {
@@ -16,22 +16,20 @@ class ChangeResponseReceivedDtoTest {
   OffsetDateTime responseReceived = OffsetDateTime.now(ZoneOffset.UTC);
   EserviceStatus status = EserviceStatus.OK;
 
-  private ChangeResponseReceivedDto changeResponseReceivedDto;
+  private ChangeResponseReceived changeResponseReceived;
 
   @BeforeEach
   void setUp() {
-    changeResponseReceivedDto =
-        ChangeResponseReceivedDto.builder().eserviceRecordId(eserviceRecordId)
-            .responseReceived(responseReceived).status(status).build();
+    changeResponseReceived =
+        ChangeResponseReceived.builder().responseReceived(responseReceived).status(status).build();
   }
 
   @Test
   @DisplayName("given valid input data ChangeResponseReceivedDto object is created")
   void testBuilder_whenGivenValidInputData_thenDtoCreatedWithCorrectValues() {
-    assertNotNull(changeResponseReceivedDto);
-    assertEquals(eserviceRecordId, changeResponseReceivedDto.eserviceRecordId());
-    assertEquals(responseReceived, changeResponseReceivedDto.responseReceived());
-    assertEquals(status, changeResponseReceivedDto.status());
+    assertNotNull(changeResponseReceived);
+    assertEquals(responseReceived, changeResponseReceived.responseReceived());
+    assertEquals(status, changeResponseReceived.status());
   }
 
 }
