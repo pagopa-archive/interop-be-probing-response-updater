@@ -28,7 +28,7 @@ public class PollingReceiver {
   @Autowired
   private Logger logger;
 
-  @SqsListener(value = "${amazon.sqs.end-point.poll-result-queue}",
+  @SqsListener(value = "${amazon.sqs.end-point.update-response-received}",
       deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
   public void receiveStringMessage(final String message)
       throws IOException, EserviceNotFoundException {
