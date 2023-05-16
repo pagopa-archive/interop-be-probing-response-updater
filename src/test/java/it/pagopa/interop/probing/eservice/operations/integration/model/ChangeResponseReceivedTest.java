@@ -10,9 +10,8 @@ import org.junit.jupiter.api.Test;
 import it.pagopa.interop.probing.response.updater.dto.impl.ChangeResponseReceived;
 import it.pagopa.interop.probing.response.updater.util.EserviceStatus;
 
-class ChangeResponseReceivedDtoTest {
+class ChangeResponseReceivedTest {
 
-  Long eserviceRecordId = 123L;
   OffsetDateTime responseReceived = OffsetDateTime.now(ZoneOffset.UTC);
   EserviceStatus status = EserviceStatus.OK;
 
