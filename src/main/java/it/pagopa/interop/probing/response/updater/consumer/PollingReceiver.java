@@ -1,6 +1,7 @@
 package it.pagopa.interop.probing.response.updater.consumer;
 
 import java.io.IOException;
+import java.util.UUID;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -38,8 +39,8 @@ public class PollingReceiver {
       deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
   public void receiveStringMessage(final Message messageFull, final String message)
       throws IOException, EserviceNotFoundException {
-    // MDC.put(LoggingPlaceholders.TRACE_ID_PLACEHOLDER,
-    // "- [CID= " + UUID.randomUUID().toString().toLowerCase() + "]");
+    MDC.put(LoggingPlaceholders.TRACE_ID_PLACEHOLDER,
+        "- [CID= " + UUID.randomUUID().toString().toLowerCase() + "]");
     logger.logConsumerMessage(message);
 
     String traceHeaderStr = messageFull.getAttributes().get("AWSTraceHeader");
@@ -65,6 +66,7 @@ public class PollingReceiver {
               .status(updateResponseReceived.status()).build());
     } finally {
       MDC.remove(LoggingPlaceholders.TRACE_ID_PLACEHOLDER);
+      MDC.remove(LoggingPlaceholders.TRACE_ID_XRAY_PLACEHOLDER);
     }
     AWSXRay.endSegment();
   }
