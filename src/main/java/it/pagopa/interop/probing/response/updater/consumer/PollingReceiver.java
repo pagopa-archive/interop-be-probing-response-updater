@@ -49,12 +49,11 @@ public class PollingReceiver {
       AWSXRay.getGlobalRecorder().beginSegment(awsXraySegmentName, traceHeader.getRootTraceId(),
           null);
     }
-
     MDC.put(LoggingPlaceholders.TRACE_ID_XRAY_PLACEHOLDER,
         LoggingPlaceholders.TRACE_ID_XRAY_MDC_PREFIX
             + AWSXRay.getCurrentSegment().getTraceId().toString() + "]");
-
     try {
+
       UpdateResponseReceivedDto updateResponseReceived =
           mapper.readValue(message, UpdateResponseReceivedDto.class);
 
