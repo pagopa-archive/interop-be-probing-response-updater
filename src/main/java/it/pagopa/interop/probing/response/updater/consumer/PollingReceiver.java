@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.TraceHeader;
-import com.amazonaws.xray.spring.aop.XRayEnabled;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
@@ -22,7 +21,6 @@ import it.pagopa.interop.probing.response.updater.util.logging.LoggingPlaceholde
 
 
 @Component
-@XRayEnabled
 public class PollingReceiver {
 
   @Autowired
@@ -43,21 +41,20 @@ public class PollingReceiver {
       throws IOException, EserviceNotFoundException {
     MDC.put(LoggingPlaceholders.TRACE_ID_PLACEHOLDER,
         "- [CID= " + UUID.randomUUID().toString().toLowerCase() + "]");
-    logger.logConsumerMessage(message);
+    logger.logConsumerMessage(messageFull.getBody());
 
     String traceHeaderStr = messageFull.getAttributes().get("AWSTraceHeader");
     TraceHeader traceHeader = TraceHeader.fromString(traceHeaderStr);
     if (AWSXRay.getCurrentSegmentOptional().isEmpty()) {
       AWSXRay.getGlobalRecorder().beginSegment(awsXraySegmentName, traceHeader.getRootTraceId(),
-          traceHeader.getParentId());
+          null);
     }
     MDC.put(LoggingPlaceholders.TRACE_ID_XRAY_PLACEHOLDER,
         LoggingPlaceholders.TRACE_ID_XRAY_MDC_PREFIX
             + AWSXRay.getCurrentSegment().getTraceId().toString() + "]");
     try {
-
       UpdateResponseReceivedDto updateResponseReceived =
-          mapper.readValue(message, UpdateResponseReceivedDto.class);
+          mapper.readValue(messageFull.getBody(), UpdateResponseReceivedDto.class);
 
       logger.logMessageReceiver(updateResponseReceived.eserviceRecordId());
 
