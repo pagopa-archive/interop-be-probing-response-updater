@@ -37,24 +37,24 @@ public class PollingReceiver {
 
   @SqsListener(value = "${amazon.sqs.end-point.update-response-received}",
       deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
-  public void receiveStringMessage(final Message messageFull)
+  public void receiveStringMessage(final Message message)
       throws IOException, EserviceNotFoundException {
     MDC.put(LoggingPlaceholders.TRACE_ID_PLACEHOLDER,
         "- [CID= " + UUID.randomUUID().toString().toLowerCase() + "]");
-    logger.logConsumerMessage(messageFull.getBody());
+    logger.logConsumerMessage(message.getBody());
 
-    String traceHeaderStr = messageFull.getAttributes().get("AWSTraceHeader");
+    String traceHeaderStr = message.getAttributes().get("AWSTraceHeader");
     TraceHeader traceHeader = TraceHeader.fromString(traceHeaderStr);
     if (AWSXRay.getCurrentSegmentOptional().isEmpty()) {
       AWSXRay.getGlobalRecorder().beginSegment(awsXraySegmentName, traceHeader.getRootTraceId(),
-          null);
+          traceHeader.getParentId());
     }
     MDC.put(LoggingPlaceholders.TRACE_ID_XRAY_PLACEHOLDER,
         LoggingPlaceholders.TRACE_ID_XRAY_MDC_PREFIX
             + AWSXRay.getCurrentSegment().getTraceId().toString() + "]");
     try {
       UpdateResponseReceivedDto updateResponseReceived =
-          mapper.readValue(messageFull.getBody(), UpdateResponseReceivedDto.class);
+          mapper.readValue(message.getBody(), UpdateResponseReceivedDto.class);
 
       logger.logMessageReceiver(updateResponseReceived.eserviceRecordId());
 
