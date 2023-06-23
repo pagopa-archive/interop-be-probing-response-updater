@@ -47,7 +47,7 @@ public class PollingReceiver {
     TraceHeader traceHeader = TraceHeader.fromString(traceHeaderStr);
     if (AWSXRay.getCurrentSegmentOptional().isEmpty()) {
       AWSXRay.getGlobalRecorder().beginSegment(awsXraySegmentName, traceHeader.getRootTraceId(),
-          null);
+          traceHeader.getParentId());
     }
     MDC.put(LoggingPlaceholders.TRACE_ID_XRAY_PLACEHOLDER,
         LoggingPlaceholders.TRACE_ID_XRAY_MDC_PREFIX
