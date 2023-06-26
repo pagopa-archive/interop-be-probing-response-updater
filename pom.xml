@@ -118,6 +118,11 @@
 			<artifactId>javax.persistence-api</artifactId>
 			<version>${javax.persistence.version}</version>
 		</dependency>
+		<dependency>
+			<groupId>com.amazonaws</groupId>
+			<artifactId>aws-xray-recorder-sdk-aws-sdk</artifactId>
+			<version>${com.amazonaws.version}</version>
+		</dependency>
 	</dependencies>
 	<build>
 		<plugins>
