@@ -4,7 +4,11 @@ import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import java.io.IOException;
 import java.nio.charset.Charset;
+import java.util.HashMap;
+import java.util.Map;
 import javax.validation.ConstraintViolationException;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
@@ -15,6 +19,8 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.core.io.Resource;
 import org.springframework.util.StreamUtils;
+import com.amazonaws.services.sqs.model.Message;
+import com.amazonaws.xray.AWSXRay;
 import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import io.awspring.cloud.messaging.listener.SimpleMessageListenerContainer;
 import it.pagopa.interop.probing.response.updater.InteropResponseUpdaterApplication;
@@ -49,13 +55,29 @@ class PollingReceiverTest {
   @Autowired
   private PollingReceiver pollingReceiver;
 
+  private Message message = new Message();
+  private Map<String, String> attributes = new HashMap<>();
+
+  @BeforeEach
+  void setup() {
+    AWSXRay.beginSegment("Segment-test");
+    attributes.put("AWSTraceHeader", "fakeId");
+  }
+
+  @AfterEach
+  void clean() {
+    AWSXRay.endSegment();
+  }
+
   @Test
   @DisplayName("given valid message method should not throw an exception")
   void testReceiveStringMessage_givenValidMessage_thenServiceDoesNotThrow()
       throws EserviceNotFoundException, IOException {
     Mockito.doNothing().when(eserviceService).updateResponseReceived(Mockito.anyLong(),
         Mockito.any());
-    String message = getStringFromResourse(mockMessageChangeResponseReceivedDto);
+    String messageString = getStringFromResourse(mockMessageChangeResponseReceivedDto);
+    message.setBody(messageString);
+    message.setAttributes(attributes);
     assertDoesNotThrow(() -> pollingReceiver.receiveStringMessage(message));
   }
 
@@ -63,7 +85,7 @@ class PollingReceiverTest {
   @DisplayName("given invalid message method should throw IllegalArgumentException")
   void testReceiveStringMessage_givenInvalidMessage_thenThrowsIllegalArgumentException()
       throws IOException {
-    assertThrows(IllegalArgumentException.class, () -> pollingReceiver.receiveStringMessage(null),
+    assertThrows(NullPointerException.class, () -> pollingReceiver.receiveStringMessage(null),
         "IllegalArgumentException should be thrown");
   }
 
@@ -72,8 +94,10 @@ class PollingReceiverTest {
   void testReceiveStringMessage_givenEmptyMessage_thenThrowsConstraintViolationException()
       throws IOException {
     String wrongMessage = getStringFromResourse(mockMessageEmpty);
+    message.setBody(wrongMessage);
+    message.setAttributes(attributes);
     assertThrows(ConstraintViolationException.class,
-        () -> pollingReceiver.receiveStringMessage(wrongMessage),
+        () -> pollingReceiver.receiveStringMessage(message),
         "ConstraintViolationException should be thrown");
   }
 
@@ -82,8 +106,10 @@ class PollingReceiverTest {
   void testReceiveStringMessage_whenEserviceRecordIdIsMissing_thenThrowsConstraintViolationException()
       throws IOException {
     String wrongMessage = getStringFromResourse(mockMessageNoEserviceRecordId);
+    message.setBody(wrongMessage);
+    message.setAttributes(attributes);
     assertThrows(ConstraintViolationException.class,
-        () -> pollingReceiver.receiveStringMessage(wrongMessage),
+        () -> pollingReceiver.receiveStringMessage(message),
         "ConstraintViolationException should be thrown");
   }
 
@@ -92,8 +118,10 @@ class PollingReceiverTest {
   void testReceiveStringMessage_whenResponseReceivedIsMissing_thenThrowsConstraintViolationException()
       throws IOException {
     String wrongMessage = getStringFromResourse(mockMessageNoResponseReceived);
+    message.setBody(wrongMessage);
+    message.setAttributes(attributes);
     assertThrows(ConstraintViolationException.class,
-        () -> pollingReceiver.receiveStringMessage(wrongMessage),
+        () -> pollingReceiver.receiveStringMessage(message),
         "ConstraintViolationException should be thrown");
   }
 
@@ -102,8 +130,10 @@ class PollingReceiverTest {
   void testReceiveStringMessage_whenStatusIsMissing_thenThrowsConstraintViolationException()
       throws IOException {
     String wrongMessage = getStringFromResourse(mockMessageNoStatus);
+    message.setBody(wrongMessage);
+    message.setAttributes(attributes);
     assertThrows(ConstraintViolationException.class,
-        () -> pollingReceiver.receiveStringMessage(wrongMessage),
+        () -> pollingReceiver.receiveStringMessage(message),
         "ConstraintViolationException should be thrown");
   }
 
@@ -112,8 +142,9 @@ class PollingReceiverTest {
   void testReceiveStringMessage_whenResponseReceivedIsBadFormatted_thenThrowsInvalidFormatException()
       throws IOException {
     String wrongMessage = getStringFromResourse(mockMessageBadFormattedResponseReceived);
-    assertThrows(InvalidFormatException.class,
-        () -> pollingReceiver.receiveStringMessage(wrongMessage),
+    message.setBody(wrongMessage);
+    message.setAttributes(attributes);
+    assertThrows(InvalidFormatException.class, () -> pollingReceiver.receiveStringMessage(message),
         "InvalidFormatException should be thrown");
   }
 
