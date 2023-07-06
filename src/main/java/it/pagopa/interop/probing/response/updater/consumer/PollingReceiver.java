@@ -43,6 +43,7 @@ public class PollingReceiver {
         "- [CID= " + UUID.randomUUID().toString().toLowerCase() + "]");
     logger.logConsumerMessage(message.getBody());
 
+
     String traceHeaderStr = message.getAttributes().get("AWSTraceHeader");
     TraceHeader traceHeader = TraceHeader.fromString(traceHeaderStr);
     if (AWSXRay.getCurrentSegmentOptional().isEmpty()) {
