@@ -18,6 +18,7 @@ public class SqsConfig {
   @Primary
   public AmazonSQSAsync amazonSQSAsync() {
     AWSXRay.getGlobalRecorder().setContextMissingStrategy(new IgnoreErrorContextMissingStrategy());
+
     return AmazonSQSAsyncClientBuilder.standard()
         .withCredentials(new DefaultAWSCredentialsProviderChain())
         .withRequestHandlers(new TracingHandler(AWSXRay.getGlobalRecorder())).build();
