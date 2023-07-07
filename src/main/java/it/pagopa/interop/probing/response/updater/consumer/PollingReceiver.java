@@ -9,6 +9,7 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.TraceHeader;
+import com.amazonaws.xray.spring.aop.XRayEnabled;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
@@ -21,6 +22,7 @@ import it.pagopa.interop.probing.response.updater.util.logging.LoggingPlaceholde
 
 
 @Component
+@XRayEnabled
 public class PollingReceiver {
 
   @Autowired
