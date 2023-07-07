@@ -9,7 +9,6 @@ import com.amazonaws.xray.javax.servlet.AWSXRayServletFilter;
 import com.amazonaws.xray.proxies.apache.http.HttpClientBuilder;
 
 @Configuration
-@Primary
 public class TracingConfig {
 
   @Value("${spring.application.name}")
