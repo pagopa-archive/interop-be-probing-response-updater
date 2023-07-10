@@ -1,7 +1,6 @@
 package it.pagopa.interop.probing.response.updater.consumer;
 
 import java.io.IOException;
-import java.util.UUID;
 import org.slf4j.MDC;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -9,6 +8,7 @@ import org.springframework.stereotype.Component;
 import com.amazonaws.services.sqs.model.Message;
 import com.amazonaws.xray.AWSXRay;
 import com.amazonaws.xray.entities.TraceHeader;
+import com.amazonaws.xray.spring.aop.XRayEnabled;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.awspring.cloud.messaging.listener.SqsMessageDeletionPolicy;
 import io.awspring.cloud.messaging.listener.annotation.SqsListener;
@@ -21,6 +21,7 @@ import it.pagopa.interop.probing.response.updater.util.logging.LoggingPlaceholde
 
 
 @Component
+@XRayEnabled
 public class PollingReceiver {
 
   @Autowired
@@ -39,8 +40,7 @@ public class PollingReceiver {
       deletionPolicy = SqsMessageDeletionPolicy.ON_SUCCESS)
   public void receiveStringMessage(final Message message)
       throws IOException, EserviceNotFoundException {
-    MDC.put(LoggingPlaceholders.TRACE_ID_PLACEHOLDER,
-        "- [CID= " + UUID.randomUUID().toString().toLowerCase() + "]");
+
     logger.logConsumerMessage(message.getBody());
 
     String traceHeaderStr = message.getAttributes().get("AWSTraceHeader");
