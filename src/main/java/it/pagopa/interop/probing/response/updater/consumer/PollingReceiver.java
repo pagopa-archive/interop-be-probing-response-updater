@@ -63,7 +63,6 @@ public class PollingReceiver {
               .responseReceived(updateResponseReceived.responseReceived())
               .status(updateResponseReceived.status()).build());
     } finally {
-      MDC.remove(LoggingPlaceholders.TRACE_ID_PLACEHOLDER);
       MDC.remove(LoggingPlaceholders.TRACE_ID_XRAY_PLACEHOLDER);
     }
     AWSXRay.endSegment();
